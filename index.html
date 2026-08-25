@@ -313,18 +313,21 @@ const catColors = {
   Office: "var(--office)",
   Crafts: "var(--crafts)",
   Seasonal: "var(--seasonal)",
+  Outdoors: "var(--Outdoors)",
 };
 const catColorHex = {
   Electronics: "#3B6FD6",
   Office: "#D98A3D",
   Crafts: "#4E9B6E",
   Seasonal: "#B65C4D",
+  Outdoors: "#B65C4D",
 };
 const SUBCATS = {
   Electronics: ["Audio", "Gadgets", "Accessories"],
   Office: ["Desk", "Stationery", "Organization"],
   Crafts: ["Art Supplies", "DIY Kits", "Sewing"],
   Seasonal: ["Summer", "Winter", "Festive"],
+  Outdoors: ["Summer", "Winter", "Festive"],
 };
 
 /**
@@ -333,6 +336,7 @@ const SUBCATS = {
  * If you leave img as null, a colored circle placeholder is shown instead.
  */
 const PRODUCTS = [
+  /* ====== Electronics ====== */
   { id: 1, name: "AI Voice Recorder", cat: "Electronics", price: 45, img: "images/electronics1.jpg", note: "24hr battery, ANC", desc: "True wireless earbuds with active noise cancellation and a case that gives you a full extra day of charge on the go.", delivery: "2-4 business days", rating: 4.6, reviews: 284, stock: 52 },
   { id: 2, name: "Compressed air Duster", cat: "Electronics", price: 28, img: "images/electronics2.jpg", note: "Touch dimmer, 3 tones", desc: "A touch-controlled desk lamp with three color temperatures and stepless dimming, plus a built-in USB charging port.", delivery: "3-5 business days", rating: 4.5, reviews: 121, stock: 40 },
   { id: 3, name: "Hand Mixer Electric", cat: "Electronics", price: 45, img: "images/electronics3.jpg", note: "24hr battery, ANC", desc: "True wireless earbuds with active noise cancellation and a case that gives you a full extra day of charge on the go.", delivery: "2-4 business days", rating: 4.6, reviews: 284, stock: 52 },
@@ -342,19 +346,24 @@ const PRODUCTS = [
   { id: 7, name: "Mini Pico Projector", cat: "Electronics", price: 28, img: "images/electronics7.jpg", note: "Touch dimmer, 3 tones", desc: "A touch-controlled desk lamp with three color temperatures and stepless dimming, plus a built-in USB charging port.", delivery: "3-5 business days", rating: 4.5, reviews: 121, stock: 40 },
   { id: 8, name: "Electric Stove Surface", cat: "Electronics", price: 39, img: "images/electronics8.jpg", note: "Water-resistant, 12hr", desc: "Compact speaker with surprisingly full bass, IPX6 water resistance, and 12 hours of playtime on a single charge.", delivery: "2-4 business days", rating: 4.7, reviews: 366, stock: 61 },
   
-  
-  
-  
-  { id: 4, name: "Ergonomic Wireless Mouse", cat: "Office", price: 22, img: "https://picsum.photos/seed/mouse4/500/500", note: "Vertical grip design", desc: "A vertical grip reduces wrist strain during long work sessions, with silent clicks and a 6-month battery life.", delivery: "2-4 business days", rating: 4.4, reviews: 98, stock: 70 },
-  { id: 5, name: "Leather Desk Organizer", cat: "Office", price: 19, img: "https://picsum.photos/seed/organizer5/500/500", note: "Pen, phone & card slots", desc: "A compact organizer that keeps pens, your phone, and cards within reach without cluttering your desk.", delivery: "3-5 business days", rating: 4.6, reviews: 143, stock: 55 },
-  { id: 6, name: "Notebook & Pen Set", cat: "Office", price: 14, img: "https://picsum.photos/seed/notebook6/500/500", note: "Dot grid, 160 pages", desc: "A dot-grid notebook paired with a smooth gel pen, made for planning, sketching, or daily notes.", delivery: "2-4 business days", rating: 4.7, reviews: 176, stock: 90 },
+  /* ====== Office ====== */
+  { id: 1, name: "Ergonomic Wireless Mouse", cat: "Office", price: 22, img: "https://picsum.photos/seed/mouse4/500/500", note: "Vertical grip design", desc: "A vertical grip reduces wrist strain during long work sessions, with silent clicks and a 6-month battery life.", delivery: "2-4 business days", rating: 4.4, reviews: 98, stock: 70 },
+  { id: 2, name: "Leather Desk Organizer", cat: "Office", price: 19, img: "https://picsum.photos/seed/organizer5/500/500", note: "Pen, phone & card slots", desc: "A compact organizer that keeps pens, your phone, and cards within reach without cluttering your desk.", delivery: "3-5 business days", rating: 4.6, reviews: 143, stock: 55 },
+  { id: 3, name: "Notebook & Pen Set", cat: "Office", price: 14, img: "https://picsum.photos/seed/notebook6/500/500", note: "Dot grid, 160 pages", desc: "A dot-grid notebook paired with a smooth gel pen, made for planning, sketching, or daily notes.", delivery: "2-4 business days", rating: 4.7, reviews: 176, stock: 90 },
+
+  /* ====== Crafts ====== */
   { id: 7, name: "Watercolor Paint Set", cat: "Crafts", price: 17, img: "https://picsum.photos/seed/paint7/500/500", note: "24 vivid colors", desc: "A beginner-friendly set of 24 richly pigmented watercolors with a built-in mixing palette and brush.", delivery: "3-5 business days", rating: 4.5, reviews: 87, stock: 64 },
   { id: 8, name: "Embroidery Starter Kit", cat: "Crafts", price: 12, img: "https://picsum.photos/seed/embroidery8/500/500", note: "Hoop, thread & needles", desc: "Everything needed to start embroidery: wooden hoop, an assortment of thread colors, needles, and a printed pattern guide.", delivery: "4-6 business days", rating: 4.6, reviews: 59, stock: 48 },
   { id: 9, name: "Hot Glue Gun Kit", cat: "Crafts", price: 15, img: "https://picsum.photos/seed/glue9/500/500", note: "20 glue sticks included", desc: "A dual-temperature glue gun with 20 glue sticks, ideal for DIY projects, repairs, and craft builds.", delivery: "3-5 business days", rating: 4.3, reviews: 64, stock: 58 },
+  
+  /* ====== Seasonal ====== */
   { id: 10, name: "Insulated Travel Mug", cat: "Seasonal", price: 16, img: "https://picsum.photos/seed/mug10/500/500", note: "Keeps drinks hot 8hr", desc: "Double-walled stainless steel that keeps coffee hot for 8 hours or drinks cold for 12, with a leak-proof lid.", delivery: "2-4 business days", rating: 4.7, reviews: 210, stock: 75 },
   { id: 11, name: "Rechargeable Handheld Fan", cat: "Seasonal", price: 13, img: "https://picsum.photos/seed/fan11/500/500", note: "3 speeds, USB-C", desc: "A pocket-sized fan with three speed settings and a USB-C charge that lasts a full day out in the heat.", delivery: "2-4 business days", rating: 4.4, reviews: 132, stock: 66 },
   { id: 12, name: "Festive String Lights", cat: "Seasonal", price: 11, img: "https://picsum.photos/seed/lights12/500/500", note: "10m, warm white", desc: "Warm white LED string lights for porches, windows, or gatherings, with a built-in timer so you never forget to switch them off.", delivery: "3-5 business days", rating: 4.6, reviews: 154, stock: 82 },
+
+  { id: 12, name: "Festive String Lights", cat: "Outdoors", price: 11, img: "https://picsum.photos/seed/lights12/500/500", note: "10m, warm white", desc: "Warm white LED string lights for porches, windows, or gatherings, with a built-in timer so you never forget to switch them off.", delivery: "3-5 business days", rating: 4.6, reviews: 154, stock: 82 },
 ];
+  
 
 /* =========================================================
    STATE
