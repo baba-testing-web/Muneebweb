@@ -4,7 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Vertex Mart</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%2333475B'/%3E%3Ctext x='50' y='68' font-size='58' font-family='Arial,sans-serif' font-weight='700' fill='%23fff' text-anchor='middle'%3EV%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -96,7 +98,7 @@ input{font-family:inherit;}
 .menu-cat-circle{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
 .menu-cat-label{font-size:11px;color:var(--ink);text-align:center;}
 .menu-link{width:100%;text-align:left;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);font-size:16px;font-weight:600;color:var(--ink);}
-.menu-acc-body{padding:0 20px;}
+.menu-acc-body{padding:0 20px;overflow:hidden;transition:max-height .35s ease;}
 .menu-acc-body .inner{display:flex;flex-direction:column;padding-bottom:12px;}
 .menu-sub{text-align:left;padding:8px 0;font-size:14px;color:var(--mute);}
 
@@ -348,8 +350,17 @@ const PRODUCTS = [
 /* =========================================================
    STATE
    ========================================================= */
-let cart = JSON.parse(localStorage.getItem('vm_cart') || '[]');
+function loadCart(){
+  try {
+    return JSON.parse(localStorage.getItem('vm_cart') || '[]');
+  } catch(e) {
+    console.warn('Vertex Mart: could not read saved cart, starting empty.', e);
+    return [];
+  }
+}
+let cart = loadCart();
 let currentPage = 'home';
+let currentProductId = null;
 let shopCategory = CATS[0];
 let shopSearch = '';
 let openMenuAccordion = null;
@@ -359,7 +370,14 @@ let checkoutOrderNumber = null;
 let shippingData = { name: '', address: '', city: '', phone: '', email: '' };
 let paymentData = { cardName: '', cardNumber: '', expiry: '', cvv: '' };
 
-function saveCart(){ localStorage.setItem('vm_cart', JSON.stringify(cart)); updateCartBadge(); }
+function saveCart(){
+  try {
+    localStorage.setItem('vm_cart', JSON.stringify(cart));
+  } catch(e) {
+    console.warn('Vertex Mart: could not save cart to this browser.', e);
+  }
+  updateCartBadge();
+}
 
 function cartCount(){ return cart.reduce((s,i)=>s+i.qty,0); }
 function cartTotal(){ return cart.reduce((s,i)=>s+i.price*i.qty,0); }
@@ -430,42 +448,72 @@ function chevronSVG(open){
 
 /* =========================================================
    NAVIGATION
+   (uses history.pushState so the browser/device Back button
+   moves between in-app sections instead of leaving the site)
    ========================================================= */
-function goTo(page){
+function showPageEl(page){
   document.querySelectorAll('.page').forEach(el=>el.classList.add('hidden'));
   const target = document.getElementById('page-'+page);
   target.classList.remove('hidden');
   target.classList.remove('page-fade');
   void target.offsetWidth; // restart animation
   target.classList.add('page-fade');
-  currentPage = page;
-  window.scrollTo({top:0, behavior:'smooth'});
-  toggleSearch(false);
-
+}
+function renderCurrentPage(page){
   if(page==='home') renderHome();
   if(page==='shop') renderShop();
+  if(page==='product') renderProduct(currentProductId);
   if(page==='cart') renderCart();
   if(page==='checkout') renderCheckout();
   if(page==='about') renderAbout();
 }
-function goToShop(cat){
-  shopCategory = cat; shopSearch = '';
-  goTo('shop');
+function pushHistory(){
+  const state = { page: currentPage, category: shopCategory, search: shopSearch, productId: currentProductId };
+  try {
+    history.pushState(state, '', '#'+currentPage);
+  } catch(e) {
+    // Some sandboxed/embedded preview environments block the History API.
+    // The app still works fine — it just won't wire up the Back button there.
+    console.warn('Vertex Mart: history navigation unavailable in this environment.', e);
+  }
 }
-function goToProduct(id){
-  renderProduct(id);
-  document.querySelectorAll('.page').forEach(el=>el.classList.add('hidden'));
-  const target = document.getElementById('page-product');
-  target.classList.remove('hidden');
-  target.classList.remove('page-fade'); void target.offsetWidth; target.classList.add('page-fade');
-  currentPage='product';
+function goTo(page, push){
+  if(push===undefined) push = true;
+  currentPage = page;
+  showPageEl(page);
   window.scrollTo({top:0, behavior:'smooth'});
+  toggleSearch(false);
+  renderCurrentPage(page);
+  if(push) pushHistory();
+}
+function goToShop(cat, push){
+  shopCategory = cat; shopSearch = '';
+  goTo('shop', push);
+}
+function goToProduct(id, push){
+  if(push===undefined) push = true;
+  currentProductId = id;
+  currentPage = 'product';
+  showPageEl('product');
+  renderProduct(id);
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(push) pushHistory();
 }
 function submitSearch(){
   const term = document.getElementById('searchInput').value.trim();
   shopSearch = term; shopCategory = CATS[0];
   goTo('shop');
 }
+window.addEventListener('popstate', (e)=>{
+  const state = e.state || { page: 'home' };
+  if(state.page === 'product'){
+    goToProduct(state.productId, false);
+  } else {
+    shopCategory = state.category || shopCategory;
+    shopSearch = state.search || '';
+    goTo(state.page, false);
+  }
+});
 function toggleSearch(force){
   const bar = document.getElementById('searchBar');
   const show = force!==undefined ? force : bar.classList.contains('hidden');
@@ -485,16 +533,25 @@ function toggleAccordion(cat){
 /* =========================================================
    REVEAL ON SCROLL
    ========================================================= */
-let revealObserver = new IntersectionObserver((entries)=>{
-  entries.forEach(entry=>{
-    if(entry.isIntersecting){
-      entry.target.classList.add('reveal-visible');
-      revealObserver.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.15 });
+let revealObserver = null;
+if (typeof IntersectionObserver !== 'undefined') {
+  revealObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('reveal-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+}
 function initReveals(container){
-  container.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+  const els = container.querySelectorAll('.reveal');
+  if (revealObserver) {
+    els.forEach(el=>revealObserver.observe(el));
+  } else {
+    // older browsers without IntersectionObserver: just show content
+    els.forEach(el=>el.classList.add('reveal-visible'));
+  }
 }
 
 /* =========================================================
@@ -597,7 +654,7 @@ function renderShop(){
 
   const pillsHTML = shopSearch
     ? `<button onclick="shopSearch='';shopCategory=CATS[0];renderShop();" style="font-size:13px;color:var(--primary);text-decoration:underline;margin-bottom:32px;">Clear search &amp; browse categories</button>`
-    : `<div class="pill-row">${CATS.map(c=>`<button class="pill ${c===shopCategory?'active':''}" onclick="shopCategory='${c}';renderShop()">${c}</button>`).join('')}</div>`;
+    : '';
 
   const gridHTML = shown.length
     ? `<div class="grid">${shown.map((p,idx)=>`<div class="reveal" style="transition-delay:${(idx%3)*80}ms">${productCardHTML(p,false)}</div>`).join('')}</div>`
@@ -889,6 +946,11 @@ function renderAbout(){
    ========================================================= */
 document.getElementById('year').textContent = new Date().getFullYear();
 updateCartBadge();
+try {
+  history.replaceState({ page: 'home', category: shopCategory, search: shopSearch, productId: null }, '', '#home');
+} catch(e) {
+  console.warn('Vertex Mart: history navigation unavailable in this environment.', e);
+}
 renderHome();
 </script>
 </body>
